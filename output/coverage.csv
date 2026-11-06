@@ -1,0 +1,13 @@
+iso3,country,regions,map_polygons,years,latest,pop_imputed_latest,note
+ARG,Argentina,24,24.0,2010–2019 (10 years),2019.0,False,Provincial GDP is not part of Argentina's official national accounts; DOSE compiles provincial estimates.
+BOL,Bolivia,9,9.0,2000–2019 (20 years),2019.0,False,
+BRA,Brazil,27,27.0,2000–2017 (18 years),2017.0,True,"Latest year 2017. Population for Mato Grosso do Sul, Rio de Janeiro, Rio Grande do Norte and Rio Grande do Sul imputed (only 2010 reported in DOSE)."
+CHL,Chile,15,16.0,2010–2019 (10 years),2019.0,True,Ñuble (created 2018) is not in DOSE; Biobío is the post-2018 region. Los Ríos population imputed after 2015.
+COL,Colombia,32,34.0,2000–2019 (20 years),2019.0,False,Bogotá D.C. is reported together with Cundinamarca.
+ECU,Ecuador,24,24.0,2015–2019 (5 years),2019.0,False,
+GUY,Guyana,0,,—,,,Not in DOSE (no official regional accounts compiled).
+PRY,Paraguay,17,18.0,2015–2017 (3 years),2017.0,False,Latest complete year 2017; Presidente Hayes is not in DOSE.
+PER,Peru,24,26.0,2001–2019 (18 years),2019.0,False,Lima = Lima Metropolitana + Lima Provincias. Callao is not in DOSE.
+SUR,Suriname,0,,—,,,Not in DOSE (no official regional accounts compiled).
+URY,Uruguay,19,19.0,2008–2014 (7 years),2014.0,False,Latest year 2014.
+VEN,Venezuela,0,,—,,,Not in DOSE (no official regional accounts compiled).

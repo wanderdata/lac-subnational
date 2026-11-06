@@ -18,5 +18,7 @@ COUNTRIES = {
     "SUR": "Suriname", "TTO": "Trinidad and Tobago", "URY": "Uruguay", "VEN": "Venezuela",
 }
 
+SOUTH_AMERICA = ["ARG", "BOL", "BRA", "CHL", "COL", "ECU", "GUY", "PRY", "PER", "SUR", "URY", "VEN"]
+
 # Classes as in OECD Regions and Cities at a Glance: regional GDP per capita, national = 100.
 BANDS = [(-1e9, 75, "≤ 75"), (75, 90, "> 75 to 90"), (90, 110, "> 90 to 110"), (110, 1e9, "> 110")]

@@ -2,55 +2,44 @@
 
     python code/01_boundaries.py
 
-Source: geoBoundaries gbOpen, simplified ADM1 (Runfola et al. 2020, CC BY 4.0),
-downloaded from the project's GitHub release data. Writes
-    data/raw/boundaries/<ISO3>.geojson            (as downloaded, not committed)
-    data/processed/adm1_lac.geojson               (all countries, further simplified for web maps)
-    data/processed/adm1_lac_index.csv             (iso3, shapeID, shapeName, shapeISO; for matching)
+Source: Natural Earth 1:10m admin-1 states and provinces (public domain),
+from the Natural Earth GitHub repository. Natural Earth is used rather than
+geoBoundaries because its borders are consistent across countries and its
+Argentina layer is complete (geoBoundaries' simplified file lacks Entre Ríos).
+
+Writes
+    data/raw/natural_earth/ne_10m_admin_1_states_provinces.geojson   (not committed)
+    data/processed/adm1_lac.geojson     (33 countries, simplified for web maps)
+    data/processed/adm1_lac_index.csv   (iso3, ne_id, name, iso_3166_2, south_america)
 """
-import time
 import urllib.request
 
 import geopandas as gpd
-import pandas as pd
 
-from config import COUNTRIES, PROCESSED, RAW
+from config import COUNTRIES, PROCESSED, RAW, SOUTH_AMERICA
 
-URL = ("https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/main/releaseData/"
-       "gbOpen/{c}/ADM1/geoBoundaries-{c}-ADM1_simplified.geojson")
-TOLERANCE = 0.01  # degrees (~1 km); enough for a regional map
-
-
-def fetch(c, dest):
-    for attempt in range(3):
-        try:
-            urllib.request.urlretrieve(URL.format(c=c), dest)
-            return True
-        except Exception as e:
-            print(f"  {c}: attempt {attempt+1} failed ({e})")
-            time.sleep(5)
-    return False
+URL = ("https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/"
+       "ne_10m_admin_1_states_provinces.geojson")
+TOLERANCE = 0.01  # degrees (~1 km)
 
 
 def main():
-    bdir = RAW / "boundaries"
-    bdir.mkdir(parents=True, exist_ok=True)
+    src = RAW / "natural_earth" / "ne_10m_admin_1_states_provinces.geojson"
+    src.parent.mkdir(parents=True, exist_ok=True)
     PROCESSED.mkdir(parents=True, exist_ok=True)
-    parts = []
-    for c in COUNTRIES:
-        f = bdir / f"{c}.geojson"
-        if not f.exists() and not fetch(c, f):
-            print(f"[fail] {c}")
-            continue
-        g = gpd.read_file(f)
-        g["iso3"] = c
-        parts.append(g[["iso3", "shapeID", "shapeName", "shapeISO", "geometry"]])
-        print(f"[ok  ] {c}: {len(g)} regions")
-    gdf = gpd.GeoDataFrame(pd.concat(parts, ignore_index=True), crs=parts[0].crs).to_crs(4326)
-    gdf["geometry"] = gdf.geometry.simplify(TOLERANCE, preserve_topology=True).make_valid()
-    gdf.to_file(PROCESSED / "adm1_lac.geojson", driver="GeoJSON", COORDINATE_PRECISION=4)
-    gdf.drop(columns="geometry").to_csv(PROCESSED / "adm1_lac_index.csv", index=False)
-    print(f"{len(gdf)} regions in {gdf['iso3'].nunique()} countries")
+    if not src.exists():
+        urllib.request.urlretrieve(URL, src)
+    g = gpd.read_file(src)
+    g = g[g["adm0_a3"].isin(COUNTRIES)].copy()
+    g = g.rename(columns={"adm0_a3": "iso3"})
+    g["name"] = g["name"].fillna("(unnamed)")
+    g["south_america"] = g["iso3"].isin(SOUTH_AMERICA)
+    g = g[["iso3", "ne_id", "name", "iso_3166_2", "south_america", "geometry"]].to_crs(4326)
+    g["geometry"] = g.geometry.simplify(TOLERANCE, preserve_topology=True).make_valid()
+    g.to_file(PROCESSED / "adm1_lac.geojson", driver="GeoJSON", COORDINATE_PRECISION=4)
+    g.drop(columns="geometry").to_csv(PROCESSED / "adm1_lac_index.csv", index=False)
+    print(f"{len(g)} regions in {g['iso3'].nunique()} countries "
+          f"({g['south_america'].sum()} in South America)")
 
 
 if __name__ == "__main__":
